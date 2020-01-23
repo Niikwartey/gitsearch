@@ -1,0 +1,17 @@
+.GitHubUser  {
+  margin-bottom: 10px;
+}
+
+.GitHubUser .detailsSection {
+  border-left: 1px solid #ccc;
+  padding-left: 20px; 
+  margin: 10px;
+}
+
+.GitHubUser .detailsSection .infoText.sub {
+  color: #777;
+  font-style: italic; 
+  margin-left: 5px;
+}
+
+

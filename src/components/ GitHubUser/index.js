@@ -2,22 +2,45 @@ import React, { useState } from 'react';
 import { Box, Collapsible, Button, Text } from 'grommet';
 import { UserDetails } from '../Details';
 import { getUserFollowers } from '../../helpers';
+import { API_RESPONSE_CAP } from '../../constants';
+import './style.css';
 
-function GitHubUser({gitHubUser}) {
+function GitHubUser({gitHubUser, isSearchedUser, newSearch}) {
   const [followers, setFollowers] = useState(null);
   const [index, setIndex] = useState(1);
   const [showFollowers, setShowFollowers] = useState(false);
-  const [showingAllFollowers, setShowingAllFollowers] = useState(false);
   const [followersCount, setFollowersCount] = useState(gitHubUser.followers);
+  const showingAllFollowers = (followers && followersCount) && followers.length === followersCount;
 
   const getFollowers = () => {
     getUserFollowers({username: gitHubUser.login})
-      .then(followers => {
-        setFollowers(followers);
-  
-        if ((followers && followers.length < 30) || (followers.length === followersCount)) {
-          setShowingAllFollowers(true);
-          setFollowersCount(followers.length);
+      .then(userFollowers => {
+        if (Array.isArray(userFollowers)) {
+          setFollowers(userFollowers);
+          setFollowersCount(gitHubUser.followers);
+          
+          if(userFollowers.length < API_RESPONSE_CAP) {
+            setFollowersCount(userFollowers.length);
+          }
+        }
+      })
+  };
+
+  const loadMoreFollowers = (event) => {
+    event.stopPropagation();
+    const nextIndex = index + 1;
+
+    getUserFollowers({username: gitHubUser.login, index: nextIndex})
+      .then(moreFollowers => {
+        if (Array.isArray(moreFollowers) || moreFollowers.length > 0) {
+          const allFollowers = [...followers, ...moreFollowers];
+          
+          setFollowers(allFollowers);
+          setIndex(nextIndex);
+    
+          if (moreFollowers.length < API_RESPONSE_CAP) {
+            setFollowersCount(allFollowers.length);
+          }
         }
       })
   };
@@ -27,43 +50,20 @@ function GitHubUser({gitHubUser}) {
     setShowFollowers(!showFollowers);
 
     if(!followers) {
-      getFollowers()
+      getFollowers();
     }
   };
 
-  const loadMoreFollowers = (event) => {
-    event.stopPropagation();
+  if(newSearch && isSearchedUser) {
+    if(followers) setFollowers(null);
 
-    const nextIndex = index + 1;
-
-    getUserFollowers({ username: gitHubUser.login, index: nextIndex})
-      .then(moreFollowers => {
-        if (Array.isArray(moreFollowers)) {
-          if (moreFollowers.length === 0) {
-            setShowingAllFollowers(true);
-          } 
-          else {
-            const allFollowers = [...followers, ...moreFollowers]
-            setFollowers(allFollowers);
-            setIndex(nextIndex);
-  
-            if ((allFollowers.length < 30) || (allFollowers.length === followersCount)) {
-              setShowingAllFollowers(true);
-              setFollowersCount(allFollowers.length);
-            }
-          }
-        }
-      })
-  };
+    getFollowers();
+    newSearch();
+  }
 
   return (
-    <Box 
-      onClick={toggleShowFollowers} 
-      animation="fadeIn" 
-      focusIndicator={false} 
-      margin={{bottom: "small"}}
-    > 
-      <Box>
+    <Box className="GitHubUser" animation="fadeIn"> 
+      <Box onClick={toggleShowFollowers} focusIndicator={false}>
         <UserDetails {...gitHubUser} />
         
         {
@@ -83,7 +83,7 @@ function GitHubUser({gitHubUser}) {
           margin={{left: "medium", top: "small"}}
           animation={showFollowers ? "fadeIn" : {"type": "fadeOut","delay": 0, "duration": 0 }} 
         > 
-          <Box style={{borderLeft: "1px solid #ccc", paddingLeft: "20px", margin: "10px"}}>
+          <Box className="detailsSection">
             {
               !followers &&
               <Box align="start">
@@ -102,7 +102,7 @@ function GitHubUser({gitHubUser}) {
                   <Box align="start" pad={{bottom: "small"}}>
                     <Text size="small">
                       {gitHubUser.login}'s followers
-                      <Text size="xsmall" color="#777" style={{fontStyle: "italic", marginLeft: "5px"}}>
+                      <Text className="infoText sub" size="xsmall">
                         (showing {followers.length}{followersCount && `/${followersCount}`})
                       </Text>
                     </Text>
@@ -113,10 +113,14 @@ function GitHubUser({gitHubUser}) {
                       <GitHubUser gitHubUser={follower} key={index}/>
                     ))
                   }
-                  
                   {
                     !showingAllFollowers &&
-                    <Button label="show more" onClick={loadMoreFollowers} focusIndicator={false} plain />
+                    <Button 
+                      label="show more" 
+                      onClick={loadMoreFollowers} 
+                      focusIndicator={false} 
+                      plain 
+                    />
                   }
                 </Box>
             }

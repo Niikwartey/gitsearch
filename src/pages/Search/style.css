@@ -3,3 +3,7 @@
   margin: 5vh auto;
   max-width: 500px !important;
 }
+
+.Search .userNotFound {
+  padding-top: 10px;
+}
