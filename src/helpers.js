@@ -1,7 +1,7 @@
-import { GITHUB_USER_API, API_HEADER } from './constants'
+import { GITHUB_USER_API } from './constants'
 
 export function fetchFromGitHub(endpoint) {
-  return fetch(endpoint, API_HEADER)
+  return fetch(endpoint)
     .then(response => response.json())
     .catch(error => console.log(error))
 }
