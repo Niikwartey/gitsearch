@@ -22,8 +22,8 @@ function Search() {
           setUserNotFound(false);
         }
         else {
-          setUserNotFound(true);
           setGitHubUser(null);
+          setUserNotFound(true);
         }
       })
       .catch(error => console.log(error));
@@ -42,9 +42,9 @@ function Search() {
       }
       {
         userNotFound &&
-        <Box className="userNotFound" animation="fadeIn" align="start">
+        <Box className="userNotFound" animation="fadeIn">
           <Text size="small">
-            User not found. Please check username and try again.
+            User not found, please check username and try again.
           </Text>
         </Box>
       }
