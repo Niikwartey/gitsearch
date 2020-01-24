@@ -4,7 +4,7 @@ import SearchForm from '../../components/SearchForm';
 import GitHubUser from '../../components/ GitHubUser';
 import { getGitHubUser }  from '../../helpers';
 import { NO_USER_MESSAGE } from '../../constants';
-import './style.css'
+import './style.css';
 
 function Search() {
   const [username, setUsername] = useState('');

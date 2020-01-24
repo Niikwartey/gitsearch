@@ -67,7 +67,7 @@ function GitHubUser({gitHubUser, isSearchedUser, newSearch}) {
         <UserDetails {...gitHubUser} />
         
         {
-          followersCount ?
+          isSearchedUser && followersCount ?
           <Box align="start" margin={{top: "small"}}>
             <Text size="small">
               followers: {followersCount}
